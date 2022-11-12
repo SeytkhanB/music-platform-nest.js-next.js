@@ -1,49 +1,35 @@
 import { Box, Button, Card, Grid } from "@mui/material";
 import { useRouter } from "next/router";
 import TrackList from "../../components/TrackList";
+import { useActions } from "../../hooks/useAction";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
 import MainLayout from "../../layouts/MainLayout";
-import { ITrack } from "../../types/track";
+import { NextThunkDispatch, wrapper } from "../../store";
+import { fetchTracks } from "../../store/actions-creators/track";
 
 const Track = () => {
   const router = useRouter();
-  const tracks: ITrack[] = [
-    {
-      _id: "1",
-      name: "Track 1",
-      artist: "Performer 1",
-      text: "Some text here",
-      listens: 21,
-      picture:
-        "http://localhost:5000/image/dd870ca1-7d9a-42e5-90b1-436a45a00460.jpeg",
-      audio:
-        "http://localhost:5000/audio/79688e0f-93f0-44d5-809b-63a6076b7e12.mp3",
-      comments: [],
-    },
-    {
-      _id: "2",
-      name: "Track 2",
-      artist: "Performer 2",
-      text: "Some text here",
-      listens: 69,
-      picture:
-        "http://localhost:5000/image/dd870ca1-7d9a-42e5-90b1-436a45a00460.jpeg",
-      audio:
-        "http://localhost:5000/audio/79688e0f-93f0-44d5-809b-63a6076b7e12.mp3",
-      comments: [],
-    },
-    {
-      _id: "3",
-      name: "Track 3",
-      artist: "Performer 3",
-      text: "Some text here",
-      listens: 42,
-      picture:
-        "http://localhost:5000/image/dd870ca1-7d9a-42e5-90b1-436a45a00460.jpeg",
-      audio:
-        "http://localhost:5000/audio/79688e0f-93f0-44d5-809b-63a6076b7e12.mp3",
-      comments: [],
-    },
-  ];
+  const { tracks, error } = useTypedSelector((state) => state.tracks);
+
+  const {} = useActions();
+
+  if (error) {
+    return (
+      <MainLayout>
+        <h2
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+            color: "red",
+          }}
+        >
+          {error}
+        </h2>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>
@@ -65,3 +51,11 @@ const Track = () => {
 };
 
 export default Track;
+
+export const getServerSideProps = wrapper.getServerSideProps(
+  (store) =>
+    async ({ req, res }) => {
+      const dispatch = store.dispatch as NextThunkDispatch;
+      await dispatch(await fetchTracks());
+    }
+);
